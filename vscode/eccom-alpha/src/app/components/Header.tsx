@@ -2,12 +2,12 @@ import Link from "next/link";
 
 const Header = () => {
     return ( 
-        <div className="flex items-centerjustify-between p-4">
-            <h1>MY Shop</h1>
-            <div className="flex gap-2">
-                <Link href="/shop">inicio</Link>
-                <Link href="/shop">produtos</Link>
-                <Link href="/shop">contato</Link>
+        <div className="flex items-center justify-between py-4 border-b mb-4">
+            <h1 className="text-2xl">MY Shop</h1>
+            <div className="flex gap-6">
+                <Link href="../" className="hover:bg-black hover:text-gray-100 p-2">inicio</Link>
+                <Link href="../" className="hover:bg-black hover:text-gray-100 p-2">produtos</Link>
+                <Link href="../" className="hover:bg-black hover:text-gray-100 p-2">contato</Link>
             </div>
         </div>
      );

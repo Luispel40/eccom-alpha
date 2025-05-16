@@ -1,18 +1,13 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Header from "./components/Header";
-import ShopPage from "./[slug]/page";
+import { Poppins } from "next/font/google";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const poppins = Poppins({
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
   subsets: ["latin"],
-});
+})
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   title: "MY Shop",
@@ -24,14 +19,12 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable}  text-red-950 dark:bg-gray-900 dark:text-gray-50`}
-      >
-        <Header />
-        {children}
-      </body>
-    </html>
+  return (<html lang="pt-BR">
+    <body className={`${poppins.className} max-w-[1024px] mx-auto flex flex-col p-4`}
+    >
+      <Header />
+      {children}
+    </body>
+  </html>
   );
 }
