@@ -17,7 +17,7 @@ const Header = () => {
       </h1>
       <div className="flex gap-6">
         <Link className="hover:bg-gray-500 hover:text-gray-100 p-1 rounded-xs" href="/">Início</Link>
-        <Link className="hover:bg-gray-500 hover:text-gray-100 p-1 rounded-xs" href="/produtos"><User /></Link>
+        <Link className="hover:bg-gray-500 hover:text-gray-100 p-1 rounded-xs" href={session ? "/panel" : "/login"}><User /></Link>
         {session ? (
           <Button className="hover:bg-gray-500 hover:text-gray-100 p-1 rounded-xs" onClick={() => signOut()}><LogOut /></Button>
         ) : (
