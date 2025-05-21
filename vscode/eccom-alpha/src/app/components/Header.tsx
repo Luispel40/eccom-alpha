@@ -2,7 +2,9 @@
 'use client';
 
 import Link from "next/link";
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
+import { LogIn, LogOut, User } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const Header = () => {
   const { data: session } = useSession();
@@ -14,9 +16,13 @@ const Header = () => {
         ` : "Visitante"}
       </h1>
       <div className="flex gap-6">
-        <Link href="/">Início</Link>
-        <Link href="/produtos">Produtos</Link>
-        <Link href={session ? "/logout" : "/login"}>{session ? "Sair" : "Entrar"}</Link>
+        <Link className="hover:bg-gray-500 hover:text-gray-100 p-1 rounded-xs" href="/">Início</Link>
+        <Link className="hover:bg-gray-500 hover:text-gray-100 p-1 rounded-xs" href="/produtos"><User /></Link>
+        {session ? (
+          <Button className="hover:bg-gray-500 hover:text-gray-100 p-1 rounded-xs" onClick={() => signOut()}><LogOut /></Button>
+        ) : (
+          <Link className="hover:bg-gray-500 hover:text-gray-100 p-1 rounded-xs" href="/login"><LogIn /></Link>
+        )}
       </div>
     </div>
   );
