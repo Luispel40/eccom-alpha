@@ -3,6 +3,7 @@ import { db } from "@/lib/prisma"
 import Image from "next/image"
 import { notFound } from "next/navigation"
 import Products from "./components/products"
+import { ChevronsRight, PhoneIcon } from "lucide-react"
 
 interface ShopPageProps {
     params: {
@@ -24,21 +25,22 @@ const ShopPage = async ({ params }: ShopPageProps) => {
     return (
         <div>
             <div className="flex gap-4">
-                <Image
+                <div className="relative w-[100px] h-[100px] ">
+                    <Image
                     src={shop.imageUrl}
-                    height={50}
-                    width={50}
+                    fill
                     alt={shop.name}
-                    className="rounded-full bg-cover"
+                    className="rounded-full object-cover"
                 />
+                </div>
                 <div className="flex flex-col gap-2">
-                    <h1>{shop.name}</h1>
+                    <h1 className="font-bold text-2xl">{shop.name}</h1>
                     <p className="overflow-hidden text-ellipsis whitespace-nowrap max-w-[200px]">{shop.address}</p>
-                    <p>{shop.phone}</p>
+                    <p className="flex items-center"><PhoneIcon className="mr-2 h-4 w-4" />{shop.phone}</p>
                 </div>
             </div>
             <Products products={shop.products} />
-            <Button className="">Todos os produtos</Button>
+            <Button className="">Todos os produtos <ChevronsRight className="ml-2 h-4 w-4" /></Button>
         </div>
     );
 }
