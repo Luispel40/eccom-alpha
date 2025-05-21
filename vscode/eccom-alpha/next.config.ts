@@ -10,8 +10,13 @@ const nextConfig: NextConfig = {
       {
         hostname: "images.unsplash.com",
       },
+      {
+        hostname: "plus.unsplash.com",
+      },
     ]
   }
+  
 };
+
 
 export default nextConfig;
