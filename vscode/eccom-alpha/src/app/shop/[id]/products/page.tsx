@@ -1,12 +1,13 @@
+
 // app/shop/[id]/products/page.tsx
 import { db } from "@/lib/prisma";
 import { notFound } from "next/navigation";
-import { useSession as session } from "next-auth/react";
 import Image from "next/image";
 import { formatCurrency } from "@/helpers/format-currency";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, Edit } from "lucide-react";
 import Link from "next/link";
+import EditionPanel from "../../components/edition-panel";
 
 interface Props {
     params: {
@@ -14,25 +15,37 @@ interface Props {
     };
 }
 
+
 export default async function ProductsPage({ params }: Props) {
     const shopId = Number(params.id);
     const shop = await db.shop.findUnique({
         where: { id: shopId },
         include: {
             products: true,
+            user: true
         },
     });
 
-    if (!shop || !session) return notFound();
+    if (shop?.id !== shopId) return notFound();
+
+
 
     return (
         <div>
             <div className="flex">
                 <Link href="/panel" className="mb-5"><ChevronLeft /></Link>
-            <h1 className="font-bold mb-5">Produtos da loja: {shop.name}</h1>
+                <h1 className="font-bold mb-5">Produtos da loja: {shop.name}</h1>
             </div>
             {shop.products.length === 0 ? (
-                <p>Nenhum produto encontrado.</p>
+                <div>
+                    <p>Nenhum produto encontrado.</p>
+                <EditionPanel 
+                    title="Novo produto" 
+                    description="Crie um novo produto" 
+                    buttonText="Criar produto"
+                    shopId={shopId}
+                     />
+                </div>
             ) : (
                 <div>
                     {shop.products.map((product) => (
@@ -53,7 +66,12 @@ export default async function ProductsPage({ params }: Props) {
                             </div>
                         </div>
                     ))}
-                    <Button>Add Product</Button>
+                    <EditionPanel 
+                    title="Novo produto" 
+                    description="Crie um novo produto" 
+                    buttonText="Criar produto"
+                    shopId={shopId}
+                     />
                 </div>
             )}
         </div>

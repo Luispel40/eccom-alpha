@@ -1,16 +1,27 @@
-// /app/api/user/[id]/route.ts
 import { db } from "@/lib/prisma";
-import { NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 
-export async function GET(req: Request, { params }: { params: { id: string } }) {
-  const user = await db.user.findUnique({
-    where: { id: Number(params.id) },
-    include: {
-      shops: true,
-    },
-  });
+export async function GET(req: NextRequest, context: { params: { id: string } }) {
+  const { id } = context.params;
 
-  if (!user) return NextResponse.json({ error: "Usuário não encontrado" }, { status: 404 });
+  try {
+    const userId = Number(id);
+    if (isNaN(userId)) {
+      return Response.json({ error: "ID inválido" }, { status: 400 });
+    }
 
-  return NextResponse.json(user);
+    const user = await db.user.findUnique({
+      where: { id: userId },
+      include: { shops: true },
+    });
+
+    if (!user) {
+      return Response.json({ error: "Usuário não encontrado" }, { status: 404 });
+    }
+
+    return Response.json(user);
+  } catch (error) {
+    console.error("Erro na API de buscar usuário:", error);
+    return Response.json({ error: "Erro interno do servidor" }, { status: 500 });
+  }
 }

@@ -13,6 +13,9 @@ const nextConfig: NextConfig = {
       {
         hostname: "plus.unsplash.com",
       },
+      {
+        hostname: "i.pravatar.cc",
+      },
     ]
   }
   

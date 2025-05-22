@@ -1,6 +1,5 @@
 import { db } from "@/lib/prisma";
 import { NextResponse } from "next/server";
-import bcrypt from "bcrypt";
 
 export async function POST(req: Request) {
   try {
@@ -27,14 +26,19 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Dados inválidos." }, { status: 400 });
     }
 
-
-    const hashedPassword = await bcrypt.hash(password, 10);
+    // Validação de senha
+    const passwordRegex = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
+    if (!passwordRegex.test(password)) {
+      return NextResponse.json({ 
+        error: "A senha deve ter no mínimo 8 caracteres, conter ao menos uma letra maiúscula e um número." 
+      }, { status: 400 });
+    }
 
     const newUser = await db.user.create({
       data: {
         name,
         email,
-        password: hashedPassword,
+        password, // enviando senha pura (não recomendado)
         avatarUrl: "https://i.pravatar.cc/100",
         shops: {
           create: [
