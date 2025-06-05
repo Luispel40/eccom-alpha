@@ -1,157 +1,163 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import {
-    Sheet,
-    SheetContent,
-    SheetDescription,
-    SheetHeader,
-    SheetTitle,
-    SheetTrigger,
-} from "@/components/ui/sheet";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
+interface Product {
+    id: number;
+    name: string;
+    description: string;
+    price: number;
+    category: string;
+    quantity: number;
+    image: string;
+}
 
 interface EditionPanelProps {
     title: string;
     description: string;
     buttonText: string;
     shopId: number;
+    product?: Product | null;    // Produto em edição (opcional)
+    onClose?: () => void;        // Função para cancelar edição
 }
 
-const EditionPanel = ({ title, description, buttonText, shopId }: EditionPanelProps) => {
-    const [form, setForm] = useState({
-        name: '',
-        price: '',
-        quantity: '',
-        isAvailable: false,
-        offer: '',
-        image: '',
-        category: '',
-        description: '',
-    });
+export default function EditionPanel({
+    title,
+    description,
+    buttonText,
+    shopId,
+    product,
+    onClose,
+}: EditionPanelProps) {
+    const [name, setName] = useState("");
+    const [descriptionField, setDescriptionField] = useState("");
+    const [price, setPrice] = useState(0);
+    const [category, setCategory] = useState("");
+    const [quantity, setQuantity] = useState(0);
+    const [image, setImage] = useState("");
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const { name, value, type, checked } = e.target;
-        setForm({
-            ...form,
-            [name]: type === 'checkbox' ? checked : value
-        });
-    };
+    // Sempre que mudar o produto, preenche os campos
+    useEffect(() => {
+        if (product) {
+            setName(product.name);
+            setDescriptionField(product.description);
+            setPrice(product.price);
+            setCategory(product.category);
+            setQuantity(product.quantity);
+            setImage(product.image);
+        } else {
+            // Limpa campos ao criar novo produto
+            setName("");
+            setDescriptionField("");
+            setPrice(0);
+            setCategory("");
+            setQuantity(0);
+            setImage("");
+        }
+    }, [product]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
         const payload = {
-            ...form,
-            price: parseFloat(form.price),
-            offer: parseFloat(form.offer),
-            quantity: parseInt(form.quantity),
+            ...(product && { id: product.id }), // só envia o id se editar
+            name,
+            description: descriptionField,
+            price,
+            category,
+            quantity,
+            image,
             shopId,
+            isAvailable: true,
         };
 
-        const res = await fetch('/api/products', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(payload)
+        const method = product ? "PUT" : "POST";
+
+        const res = await fetch("/api/product", {
+            method,
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
         });
 
-        if (res.ok) {
-            alert('Produto criado com sucesso!');
-        } else {
-            alert('Erro ao criar produto.');
+        if (!res.ok) {
+            const error = await res.json();
+            alert("Erro: " + (error.error || "Falha na requisição"));
+            return;
         }
+
+        if (onClose) onClose();
     };
 
     return (
-        <div>
-            <Sheet>
-                <SheetTrigger asChild>
-                    <Button variant="default">{buttonText}</Button>
-                </SheetTrigger>
-                <SheetContent>
-                    <SheetHeader>
-                        <SheetTitle>{title}</SheetTitle>
-                        <SheetDescription>{description}</SheetDescription>
-                    </SheetHeader>
-                    <div className="flex flex-col gap-4 p-4">
-                        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-                            <input
-                                type="text"
-                                name="name"
-                                placeholder="Nome do Produto"
-                                value={form.name}
-                                onChange={handleChange}
-                                className="border rounded-md p-2"
-                            />
-                            <input
-                                type="text"
-                                name="price"
-                                placeholder="Valor do Produto"
-                                value={form.price}
-                                onChange={handleChange}
-                                className="border rounded-md p-2"
-                            />
-                            <input
-                                type="text"
-                                name="image"
-                                placeholder="Imagem do Produto"
-                                value={form.image}
-                                onChange={handleChange}
-                                className="border rounded-md p-2"
-                            />
-                            <input
-                                type="text"
-                                name="offer"
-                                placeholder="Preço promocional"
-                                value={form.offer}
-                                onChange={handleChange}
-                                className="border rounded-md p-2"
-                            />
-                            <input
-                                type="text"
-                                name="category"
-                                placeholder="Categoria"
-                                value={form.category}
-                                onChange={handleChange}
-                                className="border rounded-md p-2"
-                            />
-                            <textarea
-                                name="description"
-                                placeholder="Descrição"
-                                value={form.description}
-                                onChange={handleChange}
-                                className="border rounded-md p-2 h-40"
-                            />
-                            <input
-                                type="number"
-                                name="quantity"
-                                placeholder="Quantidade"
-                                value={form.quantity}
-                                onChange={handleChange}
-                                className="border rounded-md p-2"
-                            />
-                            <div className="flex items-center gap-2 justify-center">
-                                <label htmlFor="isAvailable">Está disponível?</label>
-                                <input
-                                    type="checkbox"
-                                    name="isAvailable"
-                                    checked={form.isAvailable}
-                                    onChange={handleChange}
-                                />
-                            </div>
-                            <input
-                                type="submit"
-                                value="Salvar"
-                                className="border rounded-md p-2 cursor-pointer bg-amber-300"
-                            />
-                        </form>
-                    </div>
-                </SheetContent>
-            </Sheet>
-        </div>
-    );
-};
+        <form onSubmit={handleSubmit} className="border rounded-md p-5 mt-5 space-y-3">
+            <h2 className="font-bold">{title}</h2>
+            <p className="text-sm text-gray-500">{description}</p>
 
-export default EditionPanel;
+            <input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Nome"
+                className="block w-full border rounded p-2"
+                required
+            />
+
+            <input
+                value={descriptionField}
+                onChange={(e) => setDescriptionField(e.target.value)}
+                placeholder="Descrição"
+                className="block w-full border rounded p-2"
+                required
+            />
+
+            <input
+                type="number"
+                value={price}
+                onChange={(e) => setPrice(Number(e.target.value))}
+                placeholder="Preço"
+                className="block w-full border rounded p-2"
+                required
+            />
+
+            <input
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                placeholder="Categoria"
+                className="block w-full border rounded p-2"
+                required
+            />
+
+            <input
+                type="number"
+                value={quantity}
+                onChange={(e) => setQuantity(Number(e.target.value))}
+                placeholder="Quantidade"
+                className="block w-full border rounded p-2"
+                required
+            />
+
+            <input
+                value={image}
+                onChange={(e) => setImage(e.target.value)}
+                placeholder="URL da Imagem"
+                className="block w-full border rounded p-2"
+                required
+            />
+
+            <div className="flex space-x-2">
+                <button type="submit" className="p-2 bg-blue-500 text-white rounded">
+                    {buttonText}
+                </button>
+
+                {product && onClose && (
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        className="p-2 bg-gray-500 text-white rounded"
+                    >
+                        Cancelar
+                    </button>
+                )}
+            </div>
+        </form>
+    );
+}
